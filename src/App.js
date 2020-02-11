@@ -5,8 +5,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "weather-icons/css/weather-icons.css";
 import Weather from "./app_component/weather.component";
 import Form from "./app_component/form.component"
+import Forecast from "./app_component/forecast.component"
 
-// const API_key = "2ca910b2b61cc7f138572705bab1cb2f";
 const API_key = "5e80a10989314afca9801137201102";
 
 class App extends React.Component {
@@ -18,9 +18,13 @@ class App extends React.Component {
       icon: undefined,
       main: undefined,
       celsius: undefined,
+      fahrenheit: undefined,
       temp_max: undefined,
       temp_min: undefined,
+      f_temp_max: undefined,
+      f_temp_min: undefined,
       description: "",
+      date: undefined,
       error: false
     };
 
@@ -40,34 +44,6 @@ class App extends React.Component {
     return cell;
   }
 
-  get_WeatherIcon(icons, rangeId) {
-    switch (true) {
-      case rangeId >= 200 && rangeId <= 232:
-        this.setState({ icon: this.weatherIcon.Thunderstorm });
-        break;
-      case rangeId >= 300 && rangeId <= 321:
-        this.setState({ icon: this.weatherIcon.Drizzle });
-        break;
-      case rangeId >= 500 && rangeId <= 521:
-        this.setState({ icon: this.weatherIcon.Rain });
-        break;
-      case rangeId >= 600 && rangeId <= 622:
-        this.setState({ icon: this.weatherIcon.Snow });
-        break;
-      case rangeId >= 700 && rangeId <= 781:
-        this.setState({ icon: this.weatherIcon.Atmosphere });
-        break;
-      case rangeId === 800:
-        this.setState({ icon: this.weatherIcon.Clear });
-        break;
-      case rangeId >= 801 && rangeId <= 804:
-        this.setState({ icon: this.weatherIcon.Clouds });
-        break;
-      default:
-        this.setState({ icon: this.weatherIcon.Clouds });
-    }
-  }
-
   getWeather = async (e) => {
 
     e.preventDefault()
@@ -77,9 +53,7 @@ class App extends React.Component {
 
     if (city && country) {
       const api_call = await fetch(
-        // `http://api.openweathermap.org/data/2.5/weather?q=${city},${country}&appid=${API_key}$cnt=5`
-        // `http://api.openweathermap.org/data/2.5/forecast/daily?q=${city},${country}&cnt=5&appid=${API_key}`
-        `http://api.weatherapi.com/v1/forecast.json?key=5e80a10989314afca9801137201102&q=${city}, ${country}&days=10`
+        `http://api.weatherapi.com/v1/forecast.json?key=${API_key}&q=${city}, ${country}&days=10`
       );
   
       const response = await api_call.json();
@@ -87,15 +61,18 @@ class App extends React.Component {
       console.log(response);
   
       this.setState({
-        city: `${response.name},${response.sys.country}`,
-        celsius: this.calCelcius(response.main.temp),
-        temp_min: this.calCelcius(response.main.temp_max),
-        temp_max: this.calCelcius(response.main.temp_min),
-        description: response.weather[0].description.toUpperCase(),
+        city: `${response.location.name},${response.location.region}`,
+        celsius: response.current.temp_c,
+        fahrenheit: response.current.temp_f,
+        temp_min: response.forecast.forecastday[0].day.mintemp_c,
+        temp_max: response.forecast.forecastday[0].day.maxtemp_c,
+        f_temp_min: response.forecast.forecastday[0].day.maxtemp_f,
+        f_temp_max: response.forecast.forecastday[0].day.maxtemp_f,
+        description: response.forecast.forecastday[0].day.condition.text,
+        icon: response.forecast.forecastday[0].day.condition.icon,
+        date: response.forecast.forecastday[1].date,
         error: false
-      });
-  
-      this.get_WeatherIcon(this.weatherIcon, response.weather[0].id)
+      });      
       
     }else {
       this.setState({error:true})
@@ -113,9 +90,15 @@ class App extends React.Component {
           temp_celsius={this.state.celsius}
           temp_max={this.state.temp_max}
           temp_min={this.state.temp_min}
+          f_temp_max={this.state.f_temp_max}
+          f_temp_min={this.state.f_temp_min}
           description={this.state.description}
           weatherIcon={this.state.icon}
         />
+        <div>
+          <Forecast 
+            date={this.state.date}/>
+        </div>        
       </div>
     );
   }

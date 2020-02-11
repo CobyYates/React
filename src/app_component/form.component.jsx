@@ -22,7 +22,7 @@ const Form = props => {
             className="form-control"
             name="country"
             autoComplete="off"
-            placeholder="Country"
+            placeholder="State"
           />
         </div>
         <div className="col-md-3 mt-md-0 py-2 text-md-left">
@@ -37,7 +37,7 @@ const Form = props => {
 function error() {
     return(
         <div className="alert aler-danger mx-5" role="alert">
-            Please specify city and country
+            Please specify city and state
         </div>
     )
 }
