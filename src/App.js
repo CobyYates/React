@@ -70,7 +70,12 @@ class App extends React.Component {
         f_temp_max: response.forecast.forecastday[0].day.maxtemp_f,
         description: response.forecast.forecastday[0].day.condition.text,
         icon: response.forecast.forecastday[0].day.condition.icon,
-        date: response.forecast.forecastday[1].date,
+        // date: response.forecast.forecastday[1].date,
+        date: response.forecast.forecastday.map(day => {
+          return (
+            <h1>{day}</h1>
+          )
+        }),
         error: false
       });      
       
